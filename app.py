@@ -8,14 +8,12 @@ import os
 st.set_page_config(page_title='AutoData Analyst Agent', layout='wide')
 st.title('AutoData Analyst Agent')
 
-# Sidebar for file upload
 st.sidebar.header('Upload CSV File')
 uploaded_file = st.sidebar.file_uploader('Choose a CSV file', type='csv')
 
 if uploaded_file:
     df = pd.read_csv(uploaded_file)
     st.success('File uploaded!')
-    # EDA
     with st.expander('Dataset Overview'):
         overview = eda.dataset_overview(df)
         st.json(overview)
@@ -40,18 +38,15 @@ if uploaded_file:
         st.json(cleaner.suggest_outlier_handling(df))
         st.write('Python Cleaning Code:')
         st.code(cleaner.generate_cleaning_code(df), language='python')
-    # LLM Planning
     with st.expander('LLM Agent Plan'):
         schema = eda.dataset_overview(df)
         plan = planner.plan_analysis(schema)
         st.write(plan)
-    # Model training (optional)
     if st.checkbox('Train Model (if target column exists)?'):
         target = st.selectbox('Select target column:', df.columns)
         model, score, task = modeler.train_model(df, target)
         st.write(f'Model type: {task}')
         st.write(f'Score: {score}')
-    # Report generation
     if st.button('Generate Report'):
         with tempfile.NamedTemporaryFile(delete=False, suffix='.html') as tmp:
             template = Template(open('report_template.html').read())
